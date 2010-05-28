@@ -33,7 +33,8 @@ while (1) {
 
     if (scalar @{$mech->forms} == 0) {
         if (my $link = $mech->find_link(url_abs_regex => qr(^http://www\d+\.megaupload\.com/files/[[:xdigit:]]+/))) {
-            sleep 2;
+            say '# sleep for 45 secs';
+            sleep 45;
             my $len = 0;
             open my $fh, '>', $filename;
             $mech->get($link->url, ':content_cb' => sub {
@@ -44,6 +45,7 @@ while (1) {
                 say "$len/$content_length";
             });
             say "completed $filename";
+            close $fh;
             last;
         } else {
             warn $mech->res->decoded_content;
