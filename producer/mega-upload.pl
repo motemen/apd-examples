@@ -1,5 +1,4 @@
 # URL: http://www.megaupload.com/?d=*
-
 use strict;
 use warnings;
 use WWW::Mechanize;
@@ -35,7 +34,15 @@ while (1) {
     if (scalar @{$mech->forms} == 0) {
         if (my $link = $mech->find_link(url_abs_regex => qr(^http://www\d+\.megaupload\.com/files/[[:xdigit:]]+/))) {
             sleep 2;
-            $mech->get($link->url, ':content_file' => $filename);
+            my $len = 0;
+            open my $fh, '>', $filename;
+            $mech->get($link->url, ':content_cb' => sub {
+                my ($data, $res) = @_;
+                my $content_length = $res->header('content-length');
+                print $fh $data;
+                $len += length $data;
+                say "$len/$content_length";
+            });
             say "completed $filename";
             last;
         } else {
